@@ -44,12 +44,13 @@ from kivy.properties import ObjectProperty
 from kivy.properties import BooleanProperty
 from kivy.properties import NumericProperty
 from kivy.uix.filechooser import FileChooserController
+from kivy.uix.filechooser import FileChooserLayout
 
 # directory with this package
 _path = os.path.dirname(os.path.realpath(__file__))
 
 Builder.load_string("""
-<FileChooserThumbView>:
+<FileChooserThumbLayout>:
     on_entry_added: stacklayout.add_widget(args[1])
     on_entries_cleared: stacklayout.clear_widgets()
     scrollview: scrollview
@@ -75,6 +76,12 @@ Builder.load_string("""
                 height: self.minimum_height
                 spacing: '10dp'
                 padding: '10dp'
+
+<FileChooserThumbView>:
+    layout: layout
+    FileChooserThumbLayout:
+        id: layout
+        controller: root
 
 [FileThumbEntry@Widget]:
     image: image
@@ -129,6 +136,22 @@ MP3_MIME = "audio/mpeg"
 AVCONV_BIN = 'avconv'
 FFMPEG_BIN = 'ffmpeg'
 CONVERT_BIN = 'convert'
+
+class FileChooserThumbLayout(FileChooserLayout):
+    '''File chooser layout using an icon view.
+
+    .. versionadded:: 1.9.0
+    '''
+
+    VIEWNAME = 'thumb'
+    _ENTRY_TEMPLATE = 'FileThumbEntry'
+
+    def __init__(self, **kwargs):
+        super(FileChooserThumbLayout, self).__init__(**kwargs)
+        self.fbind('on_entries_cleared', self.scroll_to_top)
+
+    def scroll_to_top(self, *args):
+        self.ids.scrollview.scroll_y = 1.0
 
 class FileChooserThumbView(FileChooserController):
     '''Implementation of :class:`FileChooserController` using an icon view
