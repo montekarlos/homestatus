@@ -92,13 +92,13 @@ Builder.load_string("""
 
     on_touch_down: self.collide_point(*args[1].pos) and ctx.controller().entry_touched(self, args[1])
     on_touch_up: self.collide_point(*args[1].pos) and ctx.controller().entry_released(self, args[1])
-    size: ctx.controller().thumbsize + dp(52), ctx.controller().thumbsize + dp(52)
+    size: ctx.controller().thumbsize + dp(10), ctx.controller().thumbsize + dp(10)
 
     canvas:
         Color:
             rgba: 1, 1, 1, 1 if self.selected else 0
         BorderImage:
-            border: 8, 8, 8, 8
+            border: 2, 2, 2, 2
             pos: root.pos
             size: root.size
             source: 'atlas://data/images/defaulttheme/filechooser_selected'
@@ -106,23 +106,30 @@ Builder.load_string("""
     AsyncImage:
         id: image
         size: ctx.controller().thumbsize, ctx.controller().thumbsize
-        pos: root.x + dp(24), root.y + dp(40)
+        pos: root.x + dp(5), root.y + dp(5)
+
+[FileThumbEntryFolder@Widget]:
+    image: image
+    locked: False
+    path: ctx.path
+    selected: self.path in ctx.controller().selection
+    size_hint: None, None
+
+    on_touch_down: self.collide_point(*args[1].pos) and ctx.controller().entry_touched(self, args[1])
+    on_touch_up: self.collide_point(*args[1].pos) and ctx.controller().entry_released(self, args[1])
+    size: ctx.controller().dirthumbsize, ctx.controller().dirthumbsize + dp(16)
+
+    AsyncImage:
+        id: image
+        size: ctx.controller().dirthumbsize, ctx.controller().dirthumbsize
+        pos: root.x, root.y
     Label:
         text: ctx.name
-        text_size: (ctx.controller().thumbsize, self.height)
+        text_size: (ctx.controller().dirthumbsize, self.height)
         halign: 'center'
         shorten: True
-        size: ctx.controller().thumbsize, '16dp'
-        pos: root.center_x - self.width / 2, root.y + dp(16)
-
-    Label:
-
-        text: ctx.controller()._gen_label(ctx)
-        font_size: '11sp'
-        color: .8, .8, .8, 1
-        size: ctx.controller().thumbsize, '16sp'
-        pos: root.center_x - self.width / 2, root.y
-        halign: 'center'
+        size: ctx.controller().dirthumbsize, '16dp'
+        pos: root.center_x - self.width / 2, root.y - 16
 
     """)
 
@@ -177,6 +184,10 @@ class FileChooserThumbView(FileChooserController):
     """The size of the thumbnails. It defaults to 64dp.
     """
 
+    dirthumbsize = NumericProperty(dp(64))
+    """The directory size of the thumbnails.
+    """
+
     play_overlay = StringProperty(os.path.join(_path, 'play_overlay.png'))
     """Path to a PIL supported image file (e.g. png) that will be put over
     videos thumbnail (e.g. a "play" button). If it's an empty string nothing
@@ -215,7 +226,10 @@ class FileChooserThumbView(FileChooserController):
 
     def _create_entry_widget(self, ctx):
         # instantiate the widget
-        widget = super(FileChooserThumbView, self)._create_entry_widget(ctx)
+        if ctx['isdir'] == True:
+            widget = Builder.template("FileThumbEntryFolder", **ctx)
+        else:
+            widget = super(FileChooserThumbView, self)._create_entry_widget(ctx)
 
         kctx = QueryDict(ctx)
         # default icon
