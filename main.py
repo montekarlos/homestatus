@@ -9,6 +9,7 @@ from kivy.config import Config
 from random import randint
 from overview import Overview
 from pong import PongGame
+import sys 
 
 class MainCarousel(Carousel):
     pongLoopTick = None # Pong animation loop
@@ -17,7 +18,7 @@ class MainCarousel(Carousel):
     
     def __init__(self):
         # Create carousel - doesn't work so well in .kv
-        Carousel.__init__(self,direction='right',loop='true')
+        Carousel.__init__(self,direction='right',loop='true',scroll_distance=80,scroll_timeout=100)
         self.overview = Overview()
         self.add_widget(self.overview)
         self.add_widget(Label(text='Hello World2'))
@@ -44,6 +45,9 @@ class HomeApp(App):
         return app
 
 if __name__ == '__main__':
-    HomeApp().run()
+    try:
+        HomeApp().run()
+    except Exception:
+        sys.exit(-1)
 
     

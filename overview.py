@@ -56,27 +56,30 @@ class Picture(Scatter):
 
     def on_touch_down(self, touch):
         super(Picture, self).on_touch_down(touch)
-        self.touch_down = True
-        print("Touch down")
+        if (self.collide_point(*touch.pos)):
+            self.touch_down = True
+            #print("Touch down")
 
     def on_touch_move(self, touch):
         super(Picture, self).on_touch_move(touch)
-        self.touch_move = True
-        print("Touch move")
+        if (self.collide_point(*touch.pos)):
+            self.touch_move = True
+            #print("Touch move")
 
     def on_touch_up(self, touch):
         super(Picture, self).on_touch_up(touch)
-        print("Touch up {}".format(self.touch_move))
-        if self.touch_move == False and self.popup_open == False and self.touch_down == True:
-            print("Choose photo")
-            self.popup_open = True
-            self.imageBrowse = ImageBrowse(photos_path=self.photos_path)
-            popup = Popup(content=self.imageBrowse,title='Select Image',
-                          size_hint=(.8, .8))
-            popup.bind(on_dismiss=self.dismiss_callback)
-            popup.open()
-        self.touch_down = False
-        self.touch_move = False
+        if (self.collide_point(*touch.pos)):
+            #print("Touch up {}".format(self.touch_move))
+            if self.touch_move == False and self.popup_open == False and self.touch_down == True:
+                print("Choose photo")
+                self.popup_open = True
+                self.imageBrowse = ImageBrowse(photos_path=self.photos_path)
+                popup = Popup(content=self.imageBrowse,title='Select Image',
+                              size_hint=(.8, .8))
+                popup.bind(on_dismiss=self.dismiss_callback)
+                popup.open()
+            self.touch_down = False
+            self.touch_move = False
             
     def dismiss_callback(self, i):
         sel_photo_list = self.imageBrowse.fileChooser.selection
