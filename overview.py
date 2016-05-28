@@ -11,10 +11,10 @@ from kivy.uix.filechooser import FileChooserIconView
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from config import Config
+from kivy.utils import strtotuple
 
 class Overview(Widget):
     current_time = StringProperty("Initialising")
-    picture1 = None;
     config = Config()
     
     def __init__(self):
@@ -23,8 +23,16 @@ class Overview(Widget):
         Clock.schedule_interval(self.update_time, 1.0)
 
         # Load pictures
-        picture1 = Picture(source=self.config.photo1_path,photos_path=self.config.photos_path)
+        picture1 = Picture(set_photo_path=self.config.set_photo1_path,
+                           set_photo_pos=self.config.set_photo1_pos,
+                           pos=self.config.photo1_pos,
+                           source=self.config.photo1_path,photos_path=self.config.photos_path)
         self.add_widget(picture1, 10)
+        picture2 = Picture(set_photo_path=self.config.set_photo2_path,
+                           set_photo_pos=self.config.set_photo2_pos,
+                           pos=self.config.photo2_pos,
+                           source=self.config.photo2_path,photos_path=self.config.photos_path)
+        self.add_widget(picture2, 10)
 
         
 
@@ -47,12 +55,14 @@ class Picture(Scatter):
     touch_move = False
     popup_open = False
     imageBrowse = None
-    photos_path = ''
 
-    def __init__(self,source,photos_path):
+    def __init__(self,source,photos_path,set_photo_path,set_photo_pos,pos):
         super(Picture, self).__init__()
         self.source = source
         self.photos_path = photos_path
+        self.set_photo_path = set_photo_path        
+        self.set_photo_pos = set_photo_pos
+        self.pos = strtotuple(pos)
 
     def on_touch_down(self, touch):
         super(Picture, self).on_touch_down(touch)
@@ -80,12 +90,15 @@ class Picture(Scatter):
                 popup.open()
             self.touch_down = False
             self.touch_move = False
+            self.set_photo_pos(self.pos)
+            
             
     def dismiss_callback(self, i):
         sel_photo_list = self.imageBrowse.fileChooser.selection
         if sel_photo_list:
             print("Selection: {}".format(sel_photo_list[0]))
             self.source = sel_photo_list[0]
+            self.set_photo_path(self.source)
         self.popup_open = False
 
 

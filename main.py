@@ -45,9 +45,9 @@ class HomeApp(App):
         return app
 
 if __name__ == '__main__':
-    try:
+    #try:
         HomeApp().run()
-    except Exception:
-        sys.exit(-1)
+    #except Exception:
+    #    sys.exit(-1)
 
     
