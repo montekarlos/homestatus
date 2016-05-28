@@ -10,10 +10,12 @@ from filechooserthumbview import FileChooserThumbView
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
+from config import Config
 
 class Overview(Widget):
     current_time = StringProperty("Initialising")
     picture1 = None;
+    config = Config()
     
     def __init__(self):
         super(Overview, self).__init__()
@@ -21,7 +23,7 @@ class Overview(Widget):
         Clock.schedule_interval(self.update_time, 1.0)
 
         # Load pictures
-        picture1 = Picture(source='C:\\Users\\K\\Pictures\\iCloud Photos\\Downloads\\IMG_0929.JPG')
+        picture1 = Picture(source=self.config.photo1_path,photos_path=self.config.photos_path)
         self.add_widget(picture1, 10)
 
         
@@ -45,6 +47,12 @@ class Picture(Scatter):
     touch_move = False
     popup_open = False
     imageBrowse = None
+    photos_path = ''
+
+    def __init__(self,source,photos_path):
+        super(Picture, self).__init__()
+        self.source = source
+        self.photos_path = photos_path
 
     def on_touch_down(self, touch):
         super(Picture, self).on_touch_down(touch)
@@ -62,7 +70,7 @@ class Picture(Scatter):
         if self.touch_move == False and self.popup_open == False and self.touch_down == True:
             print("Choose photo")
             self.popup_open = True
-            self.imageBrowse = ImageBrowse()
+            self.imageBrowse = ImageBrowse(photos_path=self.photos_path)
             popup = Popup(content=self.imageBrowse,title='Select Image',
                           size_hint=(.8, .8))
             popup.bind(on_dismiss=self.dismiss_callback)
@@ -71,22 +79,24 @@ class Picture(Scatter):
         self.touch_move = False
             
     def dismiss_callback(self, i):
-        print("Selection: {}".format(self.imageBrowse.fileChooser.selection[0]))
-        self.source = self.imageBrowse.fileChooser.selection[0]
+        sel_photo_list = self.imageBrowse.fileChooser.selection
+        if sel_photo_list:
+            print("Selection: {}".format(sel_photo_list[0]))
+            self.source = sel_photo_list[0]
         self.popup_open = False
 
 
 class ImageBrowse(BoxLayout):
     fileChooser = None
     
-    def __init__(self):
+    def __init__(self,photos_path):
         super(ImageBrowse, self).__init__()
         self.orientation = "vertical"
         #self.size_hint = (.9, .85)
         #box = BoxLayout(,size=self.size,pos=self.pos)
         #self.add_widget(box)
         self.fileChooser = FileChooserThumbView(thumbsize=128,size_hint=(1,0.8),thumbdir='c:\\temp\\thumbs',
-                                           path='C:\\Users\\K\\Pictures\\iCloud Photos\\Downloads')
+                                           path=photos_path)
         #fileChooser = FileChooserIconView(path='C:\\Users\\K\\Pictures\\iCloud Photos\\Downloads')
         self.add_widget(self.fileChooser)
         
