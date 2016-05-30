@@ -41,6 +41,10 @@ class PhotoConfig(EventDispatcher):
 class Config:
     photos_path = ''
     config_path = '~/.config/homestatus.ini'
+    thumbs_path = '~/.config/thumbs'
+
+    def get_thumbs_path(self):
+        return expanduser(self.thumbs_path)
 
     def __init__(self):
         self.photo1_config = PhotoConfig(self, 'photo_1')

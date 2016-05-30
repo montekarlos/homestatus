@@ -32,7 +32,7 @@ import shutil
 import subprocess
 from threading import Thread
 from os.path import join, exists, dirname
-from tempfile import mktemp, mkdtemp
+from tempfile import mktemp, mkdtemp, mkstemp
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -268,7 +268,7 @@ class FileChooserThumbView(FileChooserController):
             # if it's a picture, we don't need to do
             # any transormation
             if is_picture(mime, ctx.name):
-                return ctx.path
+                return self._generate_small_img(ctx.path)
 
             # for mp3/flac an image can be embedded
             # into the file, so we try to get it
@@ -289,6 +289,15 @@ class FileChooserThumbView(FileChooserController):
             return FILE_ICON
 
         return FILE_ICON
+
+    def _generate_small_img(self, imagePath):
+        from PIL import Image
+        im = Image.open(imagePath).convert('RGB')
+        im.thumbnail((self.thumbsize, self.thumbsize))
+        thumbfile = self._gen_temp_file_name(".JPG")
+        im.save(thumbfile, "JPEG")
+        self._thumbs[imagePath] = thumbfile
+        return thumbfile
 
     def _generate_image_from_flac(self, flacPath):
         # if we don't have the python module to
@@ -353,7 +362,7 @@ class FileChooserThumbView(FileChooserController):
         return image
 
     def _gen_temp_file_name(self, extension):
-        return join(self.thumbdir, mktemp()) + extension
+        return mktemp(extension, 'thumb', self.thumbdir)
 
     def _generate_image_from_data(self, path, extension, data):
         # data contains the raw bytes

@@ -12,6 +12,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from config import Config
 from kivy.utils import strtotuple
+from ast import literal_eval as make_tuple
 
 class Overview(Widget):
     current_time = StringProperty("Initialising")
@@ -23,11 +24,11 @@ class Overview(Widget):
         Clock.schedule_interval(self.update_time, 1.0)
 
         # Load pictures
-        picture1 = Picture(config=self.config.photo1_config,
-                           photos_path=self.config.photos_path)
+        picture1 = Picture(photo_config=self.config.photo1_config,
+                           config=self.config)
         self.add_widget(picture1, 10)
-        picture2 = Picture(config=self.config.photo2_config,
-                           photos_path=self.config.photos_path)
+        picture2 = Picture(photo_config=self.config.photo2_config,
+                           config=self.config)
         self.add_widget(picture2, 10)
 
     def update_time(self, dt):
@@ -50,15 +51,15 @@ class Picture(Scatter):
     popup_open = False
     imageBrowse = None
 
-    def __init__(self,config,photos_path):
+    def __init__(self,photo_config,config):
         super(Picture, self).__init__()
+        self.photo_config = photo_config
         self.config = config
-        self.source = config.path
+        self.source = photo_config.path
         self.bind(source=self.set_source)
-        self.photos_path = photos_path
-        self.pos = strtotuple(config.pos)
-        self.rotation = float(config.rotation)
-        self.scale = float(config.scale)
+        self.pos = make_tuple(photo_config.pos)
+        self.rotation = float(photo_config.rotation)
+        self.scale = float(photo_config.scale)
 
     def set_source(self, instance, value):
         self.config.path = value
@@ -82,7 +83,7 @@ class Picture(Scatter):
             if self.touch_move == False and self.popup_open == False and self.touch_down == True:
                 print("Choose photo")
                 self.popup_open = True
-                self.imageBrowse = ImageBrowse(photos_path=self.photos_path)
+                self.imageBrowse = ImageBrowse(photos_path=self.config.photos_path,thumbs_path=self.config.get_thumbs_path())
                 popup = Popup(content=self.imageBrowse,title='Select Image',
                               size_hint=(.8, .8))
                 popup.bind(on_dismiss=self.dismiss_callback)
@@ -105,14 +106,14 @@ class Picture(Scatter):
 class ImageBrowse(BoxLayout):
     fileChooser = None
     
-    def __init__(self,photos_path):
+    def __init__(self,photos_path,thumbs_path):
         super(ImageBrowse, self).__init__()
         self.orientation = "vertical"
         #self.size_hint = (.9, .85)
         #box = BoxLayout(,size=self.size,pos=self.pos)
         #self.add_widget(box)
-        self.fileChooser = FileChooserThumbView(thumbsize=128,size_hint=(1,0.8),thumbdir='c:\\temp\\thumbs',
-                                           path=photos_path)
+        self.fileChooser = FileChooserThumbView(thumbsize=128,size_hint=(1,0.8),thumbdir=thumbs_path,
+                                                path=photos_path)
         #fileChooser = FileChooserIconView(path='C:\\Users\\K\\Pictures\\iCloud Photos\\Downloads')
         self.add_widget(self.fileChooser)
         
