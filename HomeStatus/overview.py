@@ -62,7 +62,7 @@ class Picture(Scatter):
         self.scale = float(photo_config.scale)
 
     def set_source(self, instance, value):
-        self.config.path = value
+        self.photo_config.path = value
 
     def on_touch_down(self, touch):
         super(Picture, self).on_touch_down(touch)
@@ -90,9 +90,9 @@ class Picture(Scatter):
                 popup.open()
             self.touch_down = False
             self.touch_move = False
-            self.config.pos = str(self.pos)
-            self.config.rotation = str(self.rotation)
-            self.config.scale = str(self.scale)
+            self.photo_config.pos = str(self.pos)
+            self.photo_config.rotation = str(self.rotation)
+            self.photo_config.scale = str(self.scale)
             
             
     def dismiss_callback(self, i):

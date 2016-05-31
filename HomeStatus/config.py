@@ -64,7 +64,7 @@ class Config:
     def save(self):
         config = configparser.ConfigParser()
         config['photos'] = { 'photos_path': self.photos_path,
-                             'thumbs_Path': self.thumbs_path }
+                             'thumbs_path': self.thumbs_path }
         self.photo1_config.set_section(config);
         self.photo2_config.set_section(config);
         with open(expanduser(self.config_path), 'w') as configfile:
