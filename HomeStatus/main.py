@@ -6,9 +6,11 @@ from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProper
 from kivy.vector import Vector
 from kivy.clock import Clock
 from kivy.config import Config
+from kivy.core.window import Window
 from random import randint
 from overview import Overview
 from pong import PongGame
+from subprocess import call
 import sys 
 
 class MainCarousel(Carousel):
@@ -19,12 +21,26 @@ class MainCarousel(Carousel):
     def __init__(self):
         # Create carousel - doesn't work so well in .kv
         Carousel.__init__(self,direction='right',loop='true',scroll_distance=80,scroll_timeout=100)
+        call(["echo", "150>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness"])
         self.overview = Overview()
         self.add_widget(self.overview)
         self.add_widget(Label(text='Hello World2'))
         self.game = PongGame()
         self.game.serve_ball()
         self.add_widget(self.game)
+        self.idle_clock = Clock.schedule_once(self.on_idle, 10)
+        Window.bind(on_motion=on_motion)
+
+    # Setup screen saver
+    def on_motion(self, etype, motionevent):
+        # Switch back light back on 
+        self.idle_clock.cancel()
+        call(["echo", "0>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
+        self.idle_clock = Clock.schedule_once(self.on_idle, 10)
+
+    def on_idle(self, dt):
+        # Switch off back light power
+        call(["echo", "1>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
 
     def on_index(self, *args):
         slideIndex = args[1]
