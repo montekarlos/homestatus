@@ -6,8 +6,8 @@ from kivy.event import EventDispatcher
 class PhotoConfig(EventDispatcher):
     path = StringProperty('')
     pos = StringProperty('0, 0')
-    scale = StringProperty('0, 0')
-    rotation = StringProperty('0, 0')
+    scale = StringProperty('1')
+    rotation = StringProperty('0')
 
     def __init__(self, parent, section_name):
         self.inload = True
@@ -57,12 +57,14 @@ class Config:
         if 'photos' in config:
             photos = config['photos']
             self.photos_path = photos.get('photos_path', '')
+            self.thumbs_path = photos.get('thumbs_path', '')
         self.photo1_config.load(config)
         self.photo2_config.load(config)
 
     def save(self):
         config = configparser.ConfigParser()
-        config['photos'] = { 'photos_path': self.photos_path }
+        config['photos'] = { 'photos_path': self.photos_path,
+                             'thumbs_Path': self.thumbs_path }
         self.photo1_config.set_section(config);
         self.photo2_config.set_section(config);
         with open(expanduser(self.config_path), 'w') as configfile:
