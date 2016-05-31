@@ -12,6 +12,7 @@ from overview import Overview
 from pong import PongGame
 from subprocess import call
 import sys 
+import time
 
 class MainCarousel(Carousel):
     pongLoopTick = None # Pong animation loop
@@ -29,18 +30,22 @@ class MainCarousel(Carousel):
         self.game.serve_ball()
         self.add_widget(self.game)
         self.idle_clock = Clock.schedule_once(self.on_idle, 10)
-        Window.bind(on_motion=on_motion)
+        Window.bind(on_motion=self.on_motion)
 
     # Setup screen saver
     def on_motion(self, etype, motionevent):
         # Switch back light back on 
         self.idle_clock.cancel()
-        call(["echo", "0>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
+        call(["echo", "150>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness"])
+        call(["echo", "1>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
         self.idle_clock = Clock.schedule_once(self.on_idle, 10)
 
     def on_idle(self, dt):
         # Switch off back light power
-        call(["echo", "1>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
+        for bright in range(150, 0):
+            call(["echo", str(bright) + ">/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness"])
+            time.sleep(.50)
+        call(["echo", "0>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
 
     def on_index(self, *args):
         slideIndex = args[1]
