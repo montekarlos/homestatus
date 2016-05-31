@@ -22,7 +22,8 @@ class MainCarousel(Carousel):
     def __init__(self):
         # Create carousel - doesn't work so well in .kv
         Carousel.__init__(self,direction='right',loop='true',scroll_distance=80,scroll_timeout=100)
-        call(["echo", "150>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness"])
+        call("echo 150 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness", shell=True)
+        call("echo 0 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power", shell=True)
         self.overview = Overview()
         self.add_widget(self.overview)
         self.add_widget(Label(text='Hello World2'))
@@ -33,19 +34,21 @@ class MainCarousel(Carousel):
         Window.bind(on_motion=self.on_motion)
 
     # Setup screen saver
-    def on_motion(self, etype, motionevent):
+    def on_motion(self, *args):
         # Switch back light back on 
+        print("On Motion")
         self.idle_clock.cancel()
-        call(["echo", "150>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness"])
-        call(["echo", "1>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
+        call("echo 150 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness", shell=True)
+        call("echo 0 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power", shell=True)
         self.idle_clock = Clock.schedule_once(self.on_idle, 10)
 
     def on_idle(self, dt):
         # Switch off back light power
-        for bright in range(150, 0):
-            call(["echo", str(bright) + ">/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness"])
-            time.sleep(.50)
-        call(["echo", "0>/sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power"])
+        print("On Idle")
+        #for bright in range(150, 0, -1):
+        #    call("echo " + str(bright) + " > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness", shell=True)
+        #    time.sleep(.50)
+        call("echo 1 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power", shell=True)
 
     def on_index(self, *args):
         slideIndex = args[1]
