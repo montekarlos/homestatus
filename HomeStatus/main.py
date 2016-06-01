@@ -41,6 +41,7 @@ class MainCarousel(Carousel):
         print("On Motion")
         self.idle_clock.cancel()
         if (self.is_idle):
+            self.is_idle = False
             self.backlight.fade_in()
         self.idle_clock = Clock.schedule_once(self.on_idle, 10)
 

@@ -46,12 +46,10 @@ class Backlight:
     def fade_in(self):
         Clock.unschedule(self.on_fade_in)
         Clock.unschedule(self.on_fade_out)
+        self.backlight_hw.switch_on()
         Clock.schedule_once(self.on_fade_in, self.fade_interval)
 
     def on_fade_in(self, dt):
-        if (self.current_brightness <= 0):
-            self.backlight_hw.switch_on()
-
         if (self.current_brightness < self.brightness):
             self.current_brightness = self.current_brightness + self.step_size
             self.backlight_hw.set_brightness(self.current_brightness)
@@ -63,11 +61,11 @@ class Backlight:
         Clock.schedule_once(self.on_fade_out, self.fade_interval)
 
     def on_fade_out(self, dt):
-        if (self.current_brightness > 0):
+        if (self.current_brightness - self.step_size > 0):
             self.current_brightness = self.current_brightness - self.step_size
             self.backlight_hw.set_brightness(self.current_brightness)
             Clock.schedule_once(self.on_fade_out, self.fade_interval)
-        elif (self.current_brightness <= 0):
+        else:
             self.backlight_hw.switch_off()
 
 class BacklightFactory:
