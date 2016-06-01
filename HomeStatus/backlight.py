@@ -7,21 +7,20 @@ class RpBacklight:
 
     def __init__(self):
         with open(self.max_brightness_path, mode='r') as f:
-            self.max_brightness = int(f.readline());
-        self.set_brightness(150)
-        self.switch_on()
+            self.max_brightness = float(f.readline());
 
     def switch_on(self):
-        with open(self.power_path, mode='a') as f:
-            f.writelines("0") # 0 to swith on
+        with open(self.power_path, 'wt') as f:
+            f.write("0\n") # 0 to swith on
 
     def switch_off(self):
-        with open(self.power_path, mode='a') as f:
-            f.writelines("1") # 1 to swith on
+        with open(self.power_path, 'wt') as f:
+            f.write("1\n") # 1 to swith on
 
     def set_brightness(self, value):
-        with open(self.brightness_path, mode='a') as f:
-            f.writelines(str(value / 100.0 * self.max_brightness))
+        print("Setting backlight to {}".format(value))
+        with open(self.brightness_path, 'wt') as f:
+            f.write(str(int(float(value) / 100.0 * self.max_brightness))+ "\n")
 
 class FakeBacklight:
     def switch_on(self):
@@ -38,7 +37,7 @@ class Backlight:
     fade_interval = .03
 
     def __init__(self, config, backlight_hw):
-        self.brightness = config.screen_brightness
+        self.brightness = float(config.screen_brightness)
         self.backlight_hw = backlight_hw
         self.current_brightness = self.brightness
         self.backlight_hw.set_brightness(self.brightness)
