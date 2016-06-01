@@ -10,20 +10,22 @@ from kivy.core.window import Window
 from random import randint
 from overview import Overview
 from pong import PongGame
-from subprocess import call
 import sys 
 import time
+from backlight import BacklightFactory
+from config import Config as MyConfig
 
 class MainCarousel(Carousel):
     pongLoopTick = None # Pong animation loop
     game = None # Pong game
     overview = None # Overview panel
+    is_idle = False
     
     def __init__(self):
         # Create carousel - doesn't work so well in .kv
         Carousel.__init__(self,direction='right',loop='true',scroll_distance=80,scroll_timeout=100)
-        call("echo 150 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness", shell=True)
-        call("echo 0 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power", shell=True)
+        self.config = MyConfig()
+        self.backlight = BacklightFactory.Make(self.config)
         self.overview = Overview()
         self.add_widget(self.overview)
         self.add_widget(Label(text='Hello World2'))
@@ -38,17 +40,15 @@ class MainCarousel(Carousel):
         # Switch back light back on 
         print("On Motion")
         self.idle_clock.cancel()
-        call("echo 150 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness", shell=True)
-        call("echo 0 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power", shell=True)
+        if (self.is_idle):
+            self.backlight.fade_in()
         self.idle_clock = Clock.schedule_once(self.on_idle, 10)
 
     def on_idle(self, dt):
         # Switch off back light power
         print("On Idle")
-        #for bright in range(150, 0, -1):
-        #    call("echo " + str(bright) + " > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/brightness", shell=True)
-        #    time.sleep(.50)
-        call("echo 1 > /sys/devices/platform/rpi_backlight/backlight/rpi_backlight/bl_power", shell=True)
+        self.backlight.fade_out()
+        self.is_idle = True
 
     def on_index(self, *args):
         slideIndex = args[1]

@@ -42,6 +42,8 @@ class Config:
     photos_path = ''
     config_path = '~/.config/homestatus.ini'
     thumbs_path = '~/.config/thumbs'
+    has_pi_screen = False
+    screen_brightness = 80
 
     def get_thumbs_path(self):
         return expanduser(self.thumbs_path)
@@ -58,6 +60,9 @@ class Config:
             photos = config['photos']
             self.photos_path = photos.get('photos_path', '')
             self.thumbs_path = photos.get('thumbs_path', '')
+        if 'general' in config:
+            self.has_pi_screen = photos.get('has_pi_screen', False)
+            self.screen_brightness = photos.get('screen_brightness', 80)
         self.photo1_config.load(config)
         self.photo2_config.load(config)
 
@@ -65,6 +70,8 @@ class Config:
         config = configparser.ConfigParser()
         config['photos'] = { 'photos_path': self.photos_path,
                              'thumbs_path': self.thumbs_path }
+        config['general'] = { 'has_pi_screen': self.has_pi_screen,
+                              'screen_brightness': self.screen_brightness }
         self.photo1_config.set_section(config);
         self.photo2_config.set_section(config);
         with open(expanduser(self.config_path), 'w') as configfile:
