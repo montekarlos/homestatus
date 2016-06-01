@@ -33,8 +33,8 @@ class FakeBacklight:
         print("Set brightness to {}%".format(value))
 
 class Backlight:
-    step_size = 2
-    fade_interval = .03
+    step_size = 1.5
+    fade_interval = .04
 
     def __init__(self, config, backlight_hw):
         self.brightness = float(config.screen_brightness)

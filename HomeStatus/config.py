@@ -62,7 +62,7 @@ class Config:
             self.thumbs_path = photos.get('thumbs_path')
         if 'general' in config:
             general = config['general']
-            self.has_pi_screen = general.get('has_pi_screen')
+            self.has_pi_screen = general.get('has_pi_screen') in ['1', 'true', 'True', 'y']
             self.screen_brightness = general.get('screen_brightness')
         self.photo1_config.load(config)
         self.photo2_config.load(config)
