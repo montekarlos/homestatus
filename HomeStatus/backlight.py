@@ -75,6 +75,8 @@ class BacklightFactory:
     @staticmethod
     def Make(config):
         if config.has_pi_screen:
+            print("Creating RpBacklight")
             return Backlight(config, RpBacklight())
         else:
+            print("Creating FakeBacklight")
             return Backlight(config, FakeBacklight())
