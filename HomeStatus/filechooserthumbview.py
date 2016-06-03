@@ -74,8 +74,8 @@ Builder.load_string("""
                 width: scrollview.width
                 size_hint_y: None
                 height: self.minimum_height
-                spacing: '10dp'
-                padding: '10dp'
+                spacing: '1dp'
+                padding: '1dp'
 
 <FileChooserThumbView>:
     layout: layout
@@ -92,13 +92,13 @@ Builder.load_string("""
 
     on_touch_down: self.collide_point(*args[1].pos) and ctx.controller().entry_touched(self, args[1])
     on_touch_up: self.collide_point(*args[1].pos) and ctx.controller().entry_released(self, args[1])
-    size: ctx.controller().thumbsize + dp(10), ctx.controller().thumbsize + dp(10)
+    size: ctx.controller().thumbsize + dp(4), ctx.controller().thumbsize + dp(4)
 
     canvas:
         Color:
             rgba: 1, 1, 1, 1 if self.selected else 0
         BorderImage:
-            border: 2, 2, 2, 2
+            border: 1, 1, 1, 1
             pos: root.pos
             size: root.size
             source: 'atlas://data/images/defaulttheme/filechooser_selected'
@@ -106,7 +106,7 @@ Builder.load_string("""
     AsyncImage:
         id: image
         size: ctx.controller().thumbsize, ctx.controller().thumbsize
-        pos: root.x + dp(5), root.y + dp(5)
+        pos: root.x + dp(2), root.y + dp(2)
 
 [FileThumbEntryFolder@Widget]:
     image: image
@@ -154,7 +154,7 @@ class FileChooserThumbLayout(FileChooserLayout):
     _ENTRY_TEMPLATE = 'FileThumbEntry'
 
     def __init__(self, **kwargs):
-        super(FileChooserThumbLayout, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.fbind('on_entries_cleared', self.scroll_to_top)
 
     def scroll_to_top(self, *args):
@@ -204,7 +204,7 @@ class FileChooserThumbView(FileChooserController):
 
 
     def __init__(self, **kwargs):
-        super(FileChooserThumbView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.thumbnail_generator = ThreadedThumbnailGenerator()
         if not exists(self.thumbdir):
             os.mkdir(self.thumbdir)
@@ -292,8 +292,22 @@ class FileChooserThumbView(FileChooserController):
 
     def _generate_small_img(self, imagePath):
         from PIL import Image
-        im = Image.open(imagePath).convert('RGB')
-        im.thumbnail((self.thumbsize, self.thumbsize))
+        from PIL import ExifTags
+        im = Image.open(imagePath)
+        if hasattr(im, '_getexif'):
+            for orientation in ExifTags.TAGS.keys(): 
+                if ExifTags.TAGS[orientation]=='Orientation':
+                    break 
+            e = im._getexif()
+            if e is not None:
+                exif=dict(e.items())
+                orientation = exif[orientation] 
+
+                if orientation == 3:   im = im.transpose(Image.ROTATE_180)
+                elif orientation == 6: im = im.transpose(Image.ROTATE_270)
+                elif orientation == 8: im = im.transpose(Image.ROTATE_90)
+
+        im.convert('RGB').thumbnail((self.thumbsize, self.thumbsize), Image.ANTIALIAS)
         thumbfile = self._gen_temp_file_name(".JPG")
         im.save(thumbfile, "JPEG")
         self._thumbs[imagePath] = thumbfile

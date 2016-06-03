@@ -113,7 +113,7 @@ class ImageBrowse(BoxLayout):
         #box = BoxLayout(,size=self.size,pos=self.pos)
         #self.add_widget(box)
         self.fileChooser = FileChooserThumbView(thumbsize=128,size_hint=(1,0.8),thumbdir=thumbs_path,
-                                                path=photos_path)
+                                                path=photos_path,rootpath=photos_path)
         #fileChooser = FileChooserIconView(path='C:\\Users\\K\\Pictures\\iCloud Photos\\Downloads')
         self.add_widget(self.fileChooser)
         
