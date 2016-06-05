@@ -44,6 +44,9 @@ class Config:
     thumbs_path = '~/.config/thumbs'
     has_pi_screen = False
     screen_brightness = 80
+    inverter_ip = '127.0.0.1'
+
+    _SOLAR_SECTION = 'solar'
 
     def get_thumbs_path(self):
         return expanduser(self.thumbs_path)
@@ -64,6 +67,9 @@ class Config:
             general = config['general']
             self.has_pi_screen = general.get('has_pi_screen') in ['1', 'true', 'True', 'y']
             self.screen_brightness = general.get('screen_brightness')
+        if self._SOLAR_SECTION in config:
+            solar = config[self._SOLAR_SECTION]
+            self.inverter_ip = solar.get('inverter_ip')
         self.photo1_config.load(config)
         self.photo2_config.load(config)
 
@@ -73,6 +79,7 @@ class Config:
                              'thumbs_path': self.thumbs_path }
         config['general'] = { 'has_pi_screen': self.has_pi_screen,
                               'screen_brightness': self.screen_brightness }
+        config[self._SOLAR_SECTION] = { 'inverter_ip': self.inverter_ip }
         self.photo1_config.set_section(config);
         self.photo2_config.set_section(config);
         with open(expanduser(self.config_path), 'w') as configfile:

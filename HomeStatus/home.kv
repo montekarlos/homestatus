@@ -53,20 +53,66 @@
         center_y: root.center_y
 # End Pong Ui
 
+<SolarLabel@Label>:
+    width: 100
+    text_size: self.size
+    halign: 'left'
+    x: 10
+    font_size: 20
+
+<SolarValue@Label>:
+    width: 100
+    text_size: self.size
+    halign: 'right'
+    x: 90
+    font_size: 20
+
 # Start Overview Ui
 <Overview>:
     Label:
         font_size: 36
         center_x: root.width / 2
-        top: root.top - 20
+        top: root.top - 10
         text: root.current_time
         index: 0
         
     Label:
         font_size: 20
         center_x: root.width / 2
-        top: root.top - 100
-        text: "Blah"
+        top: root.top - 40
+        text: root.current_date
+
+    # House Usage
+    SolarLabel:
+        center_y: 100
+        text: 'Usage:'
+
+    SolarValue:
+        color: [1, 0, 0, 1]
+        center_y: 100
+        text: root.power_consumed
+
+    # PV Generated
+    SolarLabel:
+        center_y: 80
+        text: 'Solar:'
+
+    SolarValue:
+        color: [0, 1, 0, 1]
+        center_y: 80
+        text: root.power_generated
+        halign: 'right'
+
+    # Grid
+    SolarLabel:
+        center_y: 60
+        text: 'Grid:'
+
+    SolarValue:
+        color: root.grid_power_colour
+        center_y: 60
+        text: root.power_imported
+        halign: 'right'
 
 <Picture>:
     # each time a picture is created, the image can delay the loading

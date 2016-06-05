@@ -31,7 +31,10 @@
     <Compile Include="main.py" />
     <Compile Include="overview.py" />
     <Compile Include="pong.py" />
-    <Compile Include="backlight.py"/>
+    <Compile Include="backlight.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="home.kv" />
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
