@@ -34,7 +34,7 @@ class Overview(Widget):
         picture2 = Picture(photo_config=self.config.photo2_config,
                            config=self.config)
         self.add_widget(picture2, 10)
-        solarStatus = SolarStatus(self.config, x=5, y=350)
+        solarStatus = SolarStatus(self.config, x=5, y=250)
         self.add_widget(solarStatus)
 
     def update_time(self, dt):

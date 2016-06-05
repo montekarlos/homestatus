@@ -21,9 +21,9 @@ class MainCarousel(Carousel):
     overview = None # Overview panel
     is_idle = False
     
-    def __init__(self):
+    def __init__(self, **kwargs):
         # Create carousel - doesn't work so well in .kv
-        Carousel.__init__(self,direction='right',loop='true',scroll_distance=80,scroll_timeout=100)
+        Carousel.__init__(self,direction='right',loop='true',scroll_distance=80,scroll_timeout=100,**kwargs)
         self.config = MyConfig()
         self.backlight = BacklightFactory.Make(self.config)
         self.overview = Overview()
@@ -64,8 +64,9 @@ class MainCarousel(Carousel):
 class HomeApp(App):
     def build(self):
         # Raspberry 7" resolution test
-        Config.set('graphics', 'width', 800)
-        Config.set('graphics', 'height', 480)
+        #Config.set('graphics', 'fullscreen', 'fake')
+        #Config.set('graphics', 'height', 480)
+        #Config.set('graphics', 'width', 800)
         app = MainCarousel()
         return app
 

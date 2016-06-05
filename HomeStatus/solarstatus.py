@@ -24,7 +24,7 @@ class SolarStatus(Widget):
         super().__init__(**kwargs)
         self.config = config
         self.update_inverter(0)
-        #self.update_inverter_history(0)
+        self.update_inverter_history(0)
         Clock.schedule_interval(self.update_inverter, 5.0)
         Clock.schedule_interval(self.update_inverter_history, 400.0)
 
