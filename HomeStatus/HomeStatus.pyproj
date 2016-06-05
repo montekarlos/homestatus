@@ -32,6 +32,9 @@
     <Compile Include="overview.py" />
     <Compile Include="pong.py" />
     <Compile Include="backlight.py" />
+    <Compile Include="solarstatus.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="home.kv" />

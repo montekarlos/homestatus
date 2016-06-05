@@ -11,28 +11,21 @@ from kivy.uix.filechooser import FileChooserIconView
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from config import Config
+from solarstatus import SolarStatus
 from kivy.utils import strtotuple
 from ast import literal_eval as make_tuple
-import urllib.request
-import json
 
 class Overview(Widget):
     current_time = StringProperty("Initialising")
     current_date = StringProperty("Initialising")
-    power_consumed = StringProperty("Initialising")
-    power_generated = StringProperty("Initialising")
-    power_imported = StringProperty("Initialising")
-    grid_power_colour = ListProperty([1, 1, 1, 1])
     config = Config()
     
-    def __init__(self):
-        super(Overview, self).__init__()
+    def __init__(self, **kwargs):
+        super(Overview, self).__init__(**kwargs)
         self.update_time(0)
-        self.update_inverter(0)
 
         # Setup update loops
         Clock.schedule_interval(self.update_time, 5.0)
-        Clock.schedule_interval(self.update_inverter, 5.0)
 
         # Load pictures
         picture1 = Picture(photo_config=self.config.photo1_config,
@@ -41,33 +34,13 @@ class Overview(Widget):
         picture2 = Picture(photo_config=self.config.photo2_config,
                            config=self.config)
         self.add_widget(picture2, 10)
+        solarStatus = SolarStatus(self.config, x=5, y=250)
+        self.add_widget(solarStatus)
 
     def update_time(self, dt):
         self.current_time = time.strftime("%I").strip('0') + time.strftime(":%M %p")
         self.current_date = time.strftime("%d %B")
         #print("Tick: {}".format(self.current_time))
-
-    def update_inverter(self, dt):
-        url = 'http://' + self.config.inverter_ip + '/solar_api/v1/GetPowerFlowRealtimeData.fcgi'
-        try:
-            with urllib.request.urlopen(url) as response:
-                data = response.read()
-                obj = json.loads(data.decode('utf-8'))
-                site = obj["Body"]["Data"]["Site"]
-                self.power_consumed = str(site["P_Load"] * -1) + " W"
-                pv = site["P_PV"]
-                if pv is None:
-                    pv = 0
-                self.power_generated = str(pv) + " W"
-                grid = site["P_Grid"]
-                if (grid > 0):
-                    self.grid_power_colour = [1, 0, 0, 1]
-                else:
-                    self.grid_power_colour = [0, 0, 1, 1]
-                    grid = grid * -1
-                self.power_imported = str(grid) + " W"
-        except:
-            print("Caught exception while processing: " + url)
 
 class Picture(Scatter):
     '''Picture is the class that will show the image with a white border and a

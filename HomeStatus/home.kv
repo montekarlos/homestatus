@@ -53,19 +53,52 @@
         center_y: root.center_y
 # End Pong Ui
 
+# Start Solar Status Ui
+
 <SolarLabel@Label>:
-    width: 100
-    text_size: self.size
     halign: 'left'
-    x: 10
-    font_size: 20
+    font_size: 30
+    text_size: (90, None)
 
 <SolarValue@Label>:
-    width: 100
-    text_size: self.size
     halign: 'right'
-    x: 90
-    font_size: 20
+    font_size: 30
+    text_size: (160, None)
+
+<SolarStatus>:
+    GridLayout:
+        cols: 2
+        cols_minimum: { 0: 90, 1: 160 }
+        pos: root.pos
+        size: root.size
+
+        # House Usage
+        SolarLabel:
+            text: 'Usage:'
+
+        SolarValue:
+            color: [1, 0, 0, 1]
+            text: root.power_consumed
+
+        # PV Generated
+        SolarLabel:
+            text: 'Solar:'
+
+        SolarValue:
+            color: [0, 1, 0, 1]
+            text: root.power_generated
+            halign: 'right'
+
+        # Grid
+        SolarLabel:
+            text: 'Grid:'
+
+        SolarValue:
+            color: root.grid_power_colour
+            text: root.power_imported
+            halign: 'right'
+
+# End Solar Status Ui
 
 # Start Overview Ui
 <Overview>:
@@ -81,38 +114,6 @@
         center_x: root.width / 2
         top: root.top - 40
         text: root.current_date
-
-    # House Usage
-    SolarLabel:
-        center_y: 100
-        text: 'Usage:'
-
-    SolarValue:
-        color: [1, 0, 0, 1]
-        center_y: 100
-        text: root.power_consumed
-
-    # PV Generated
-    SolarLabel:
-        center_y: 80
-        text: 'Solar:'
-
-    SolarValue:
-        color: [0, 1, 0, 1]
-        center_y: 80
-        text: root.power_generated
-        halign: 'right'
-
-    # Grid
-    SolarLabel:
-        center_y: 60
-        text: 'Grid:'
-
-    SolarValue:
-        color: root.grid_power_colour
-        center_y: 60
-        text: root.power_imported
-        halign: 'right'
 
 <Picture>:
     # each time a picture is created, the image can delay the loading
