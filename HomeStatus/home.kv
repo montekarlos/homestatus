@@ -58,17 +58,19 @@
 <SolarLabel@Label>:
     halign: 'left'
     font_size: 30
-    text_size: (90, None)
+    text_size: (180, 35)
 
 <SolarValue@Label>:
     halign: 'right'
     font_size: 30
-    text_size: (160, None)
+    text_size: (180, 35)
 
 <SolarStatus>:
     GridLayout:
         cols: 2
-        cols_minimum: { 0: 90, 1: 160 }
+        cols_minimum: { 0: 180, 1: 180 }
+        row_force_default: True
+        row_default_height: 40
         pos: root.pos
         size: root.size
 
@@ -77,7 +79,7 @@
             text: 'Usage:'
 
         SolarValue:
-            color: [1, 0, 0, 1]
+            color: root.consume_power_colour
             text: root.power_consumed
 
         # PV Generated
@@ -87,21 +89,48 @@
         SolarValue:
             color: [0, 1, 0, 1]
             text: root.power_generated
-            halign: 'right'
 
         # Grid
         SolarLabel:
-            text: 'Grid:'
+            text: 'Import:'
 
         SolarValue:
             color: root.grid_power_colour
             text: root.power_imported
-            halign: 'right'
+
+        # Daily Generated
+        SolarLabel:
+            text: 'Daily Solar:'
+
+        SolarValue:
+            color: [0, 1, 0, 1]
+            text: root.daily_generated
+
+        # Daily Export
+        SolarLabel:
+            text: 'Daily Export:'
+
+        SolarValue:
+            color: [0, 0, 1, 1]
+            text: root.daily_exported
+
+        # Daily Grid
+        SolarLabel:
+            text: 'Daily Import:'
+
+        SolarValue:
+            color: [1, 0, 0, 1]
+            text: root.daily_imported
 
 # End Solar Status Ui
 
 # Start Overview Ui
 <Overview>:
+    canvas.before:
+        Rectangle:
+            source: 'background.jpg'
+            size: self.size
+
     Label:
         font_size: 36
         center_x: root.width / 2
