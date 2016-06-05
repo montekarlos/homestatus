@@ -55,7 +55,10 @@ class Overview(Widget):
                 obj = json.loads(data.decode('utf-8'))
                 site = obj["Body"]["Data"]["Site"]
                 self.power_consumed = str(site["P_Load"] * -1) + " W"
-                self.power_generated = str(site["P_PV"]) + " W"
+                pv = site["P_PV"]
+                if pv is None:
+                    pv = 0
+                self.power_generated = str(pv) + " W"
                 grid = site["P_Grid"]
                 if (grid > 0):
                     self.grid_power_colour = [1, 0, 0, 1]

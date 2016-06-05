@@ -42,11 +42,16 @@ class Config:
     photos_path = ''
     config_path = '~/.config/homestatus.ini'
     thumbs_path = '~/.config/thumbs'
+
     has_pi_screen = False
     screen_brightness = 80
+    switch_off_time = 60
+
     inverter_ip = '127.0.0.1'
 
+
     _SOLAR_SECTION = 'solar'
+    _GENERAL_SECTION = 'general'
 
     def get_thumbs_path(self):
         return expanduser(self.thumbs_path)
@@ -63,10 +68,11 @@ class Config:
             photos = config['photos']
             self.photos_path = photos.get('photos_path')
             self.thumbs_path = photos.get('thumbs_path')
-        if 'general' in config:
-            general = config['general']
+        if self._GENERAL_SECTION in config:
+            general = config[self._GENERAL_SECTION]
             self.has_pi_screen = general.get('has_pi_screen') in ['1', 'true', 'True', 'y']
             self.screen_brightness = general.get('screen_brightness')
+            self.switch_off_time = general.get('switch_off_time')
         if self._SOLAR_SECTION in config:
             solar = config[self._SOLAR_SECTION]
             self.inverter_ip = solar.get('inverter_ip')
@@ -77,8 +83,9 @@ class Config:
         config = configparser.ConfigParser()
         config['photos'] = { 'photos_path': self.photos_path,
                              'thumbs_path': self.thumbs_path }
-        config['general'] = { 'has_pi_screen': self.has_pi_screen,
-                              'screen_brightness': self.screen_brightness }
+        config[self._GENERAL_SECTION] = { 'has_pi_screen': self.has_pi_screen,
+                                          'screen_brightness' : self.screen_brightness,
+                                          'switch_off_time' : self.switch_off_time }
         config[self._SOLAR_SECTION] = { 'inverter_ip': self.inverter_ip }
         self.photo1_config.set_section(config);
         self.photo2_config.set_section(config);

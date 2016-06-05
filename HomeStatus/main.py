@@ -32,7 +32,7 @@ class MainCarousel(Carousel):
         self.game = PongGame()
         self.game.serve_ball()
         self.add_widget(self.game)
-        self.idle_clock = Clock.schedule_once(self.on_idle, 10)
+        self.idle_clock = Clock.schedule_once(self.on_idle, float(self.config.switch_off_time))
         Window.bind(on_motion=self.on_motion)
 
     # Setup screen saver
@@ -43,7 +43,7 @@ class MainCarousel(Carousel):
         if (self.is_idle):
             self.is_idle = False
             self.backlight.fade_in()
-        self.idle_clock = Clock.schedule_once(self.on_idle, 10)
+        self.idle_clock = Clock.schedule_once(self.on_idle, float(self.config.switch_off_time))
 
     def on_idle(self, dt):
         # Switch off back light power
