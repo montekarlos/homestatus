@@ -35,18 +35,21 @@ class SolarStatus(Widget):
                 data = response.read()
                 obj = json.loads(data.decode('utf-8'))
                 site = obj["Body"]["Data"]["Site"]
-                load = site["P_Load"]
-                if (load > 0):
-                    self.consume_power_colour = self._BLUE
-                else:
-                    self.consume_power_colour = self._RED
-                    load = load * -1
+                
+                load = int(site["P_Load"] * -1)
                 self.power_consumed = str(load) + " W"
-                pv = site["P_PV"]
+                
+                pv = int(site["P_PV"])
                 if pv is None:
                     pv = 0
                 self.power_generated = str(pv) + " W"
-                grid = site["P_Grid"]
+                
+                if (pv >= load):
+                    self.consume_power_colour = self._BLUE
+                else:
+                    self.consume_power_colour = self._RED
+
+                grid = int(site["P_Grid"])
                 if (grid > 0):
                     self.grid_power_colour = self._RED
                 else:
@@ -54,7 +57,7 @@ class SolarStatus(Widget):
                     grid = grid * -1
                 self.power_imported = str(grid) + " W"
 
-                daily_gen = site["E_Day"]
+                daily_gen = int(site["E_Day"])
                 if daily_gen is None:
                     daily_gen = 0
                 self.daily_generated = str(daily_gen) + " Wh"
@@ -67,7 +70,7 @@ class SolarStatus(Widget):
         endKey = s[-1]
         startValue = dict[firstKey]
         endValue = dict[endKey]
-        return endValue - startValue
+        return int(endValue - startValue)
 
     def _get_history_difference(self, date, channel):
         url = 'http://' + self.config.inverter_ip + '/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=' + date + '&EndDate=' + date + '&Channel=' + channel
