@@ -55,7 +55,9 @@ class SolarStatus(Widget):
                 self.power_imported = str(grid) + " W"
 
                 daily_gen = site["E_Day"]
-                self.daily_generated = str(daily_gen) + " W"
+                if daily_gen is None:
+                    daily_gen = 0
+                self.daily_generated = str(daily_gen) + " Wh"
         except:
             print("Caught exception while processing: " + url)
 
@@ -74,7 +76,7 @@ class SolarStatus(Widget):
                 data = response.read()
                 obj = json.loads(data.decode('utf-8'))
                 values = obj["Body"]["Data"]["meter:16030023"]["Data"][channel]["Values"]
-                return str(self._get_difference(values)) + " W"
+                return str(self._get_difference(values)) + " Wh"
         except:
             print("Caught exception while processing: " + url)
 
@@ -82,3 +84,5 @@ class SolarStatus(Widget):
         date = time.strftime("%m/%d/%y")
         self.daily_imported = self._get_history_difference(date, 'EnergyReal_WAC_Plus_Absolute')
         self.daily_exported = self._get_history_difference(date, 'EnergyReal_WAC_Minus_Absolute')
+        # Hot water: http://10.1.3.43/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=06/06/16&EndDate=06/06/16&Channel=Digital_PowerManagementRelay_Out_1
+
