@@ -90,6 +90,17 @@ class SolarStatus(Widget):
         except:
             print("Caught exception while processing: " + url)
 
+    def calc_daily_cost(self, daily_imported, daily_exported):
+        service_charge = -1.1638 - 0.06767
+        import_per_kwh = -0.2223
+        export_per_kwh = 0.06
+        import_cost = (daily_imported/1000.0 * import_per_kwh)
+        export_cost = (daily_exported/1000.0 * export_per_kwh)
+        gst = 1.1
+        discount = (1 - .14)
+        daily_cost_value = ((service_charge + import_cost) * discount * gst) + export_cost
+        return daily_cost_value
+
     def update_inverter_history(self, dt):
         date = time.strftime("%m/%d/%y")
         daily_imported = self._get_history_difference(date, 'EnergyReal_WAC_Plus_Absolute')
@@ -97,11 +108,11 @@ class SolarStatus(Widget):
         self.daily_imported = str(daily_imported) + " Wh"
         self.daily_exported = str(daily_exported) + " Wh"
         self.daily_used = str(self.daily_generated_value - daily_exported + daily_imported) + " Wh"
-        daily_cost_value = ((-116.38 - 6.767 - (daily_imported/1000.0 * 0.2223)) * .86 * 1.1) + (daily_exported/1000.0 * .06)
+        daily_cost_value = self.calc_daily_cost(daily_imported, daily_exported)
         if (daily_cost_value < 0):
             self.daily_cost_colour = self._RED
         else:
             self.daily_cost_colour = self._GREEN
-        self.daily_cost = "$" + str(round(abs(daily_cost_value/100), 2))
+        self.daily_cost = "$" + str(round(abs(daily_cost_value), 2))
         # Hot water: http://10.1.3.43/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=06/06/16&EndDate=06/06/16&Channel=Digital_PowerManagementRelay_Out_1
 
