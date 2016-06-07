@@ -34,12 +34,12 @@ class Overview(Widget):
         picture2 = Picture(photo_config=self.config.photo2_config,
                            config=self.config)
         self.add_widget(picture2, 10)
-        solarStatus = SolarStatus(self.config, x=5, y=250)
+        solarStatus = SolarStatus(self.config, x=5, y=350)
         self.add_widget(solarStatus)
 
     def update_time(self, dt):
         self.current_time = time.strftime("%I").strip('0') + time.strftime(":%M %p")
-        self.current_date = time.strftime("%d %B")
+        self.current_date = time.strftime("%B %d")
         #print("Tick: {}".format(self.current_time))
 
 class Picture(Scatter):
