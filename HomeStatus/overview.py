@@ -98,8 +98,10 @@ class Picture(Scatter):
             self.touch_move = False
             self.photo_config.pos = str(self.pos)
             self.photo_config.rotation = str(self.rotation)
-            self.photo_config.scale = str(self.scale)
-            
+            if (self.scale >= .3):
+                self.photo_config.scale = str(self.scale)
+            else:
+                self.scale = .3
             
     def dismiss_callback(self, i):
         sel_photo_list = self.imageBrowse.fileChooser.selection
