@@ -105,8 +105,12 @@ class SolarStatus(Widget):
 
     def _get_latest_value_from_url(self, date, channel):
         obj = self._get_json_from_history_url(date, channel)
-        values = obj["Body"]["Data"]["datamanager:/dc/f002a69c/"]["Data"][channel]["Values"]
-        return self._get_latest_value(values)
+        data = obj["Body"]["Data"]
+        latest_value = None
+        if data:
+            values = ["datamanager:/dc/f002a69c/"]["Data"][channel]["Values"]
+            latest_value = self._get_latest_value(values)
+        return latest_value
 
     def calc_daily_cost(self, daily_imported, daily_exported):
         service_charge = -1.1638 - 0.06767
@@ -127,12 +131,12 @@ class SolarStatus(Widget):
         self.daily_exported = str(daily_exported) + " Wh"
         self.daily_used = str(self.daily_generated_value - daily_exported + daily_imported) + " Wh"
         hot_water_state = self._get_latest_value_from_url(date, 'Digital_PowerManagementRelay_Out_1')
-        if (hot_water_state == 1):
-            self.hot_water_state = "On"
-            self.hot_water_color = self._GREEN
-        else:
+        if (hot_water_state == None or hot_water_state == 0):
             self.hot_water_state = "Off"
             self.hot_water_color = self._BLUE
+        else:
+            self.hot_water_state = "On"
+            self.hot_water_color = self._GREEN
         daily_cost_value = self.calc_daily_cost(daily_imported, daily_exported)
         if (daily_cost_value < 0):
             self.daily_cost_colour = self._RED
