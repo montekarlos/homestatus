@@ -46,6 +46,9 @@ from kivy.properties import NumericProperty
 from kivy.uix.filechooser import FileChooserController
 from kivy.uix.filechooser import FileChooserLayout
 
+from PIL import Image
+from PIL import ExifTags
+
 # directory with this package
 _path = os.path.dirname(os.path.realpath(__file__))
 
@@ -291,9 +294,8 @@ class FileChooserThumbView(FileChooserController):
         return FILE_ICON
 
     def _generate_small_img(self, imagePath):
-        from PIL import Image
-        from PIL import ExifTags
         im = Image.open(imagePath)
+        orientation = 0
         if hasattr(im, '_getexif'):
             for orientation in ExifTags.TAGS.keys(): 
                 if ExifTags.TAGS[orientation]=='Orientation':
@@ -303,13 +305,14 @@ class FileChooserThumbView(FileChooserController):
                 exif=dict(e.items())
                 orientation = exif[orientation] 
 
-                if orientation == 3:   im = im.transpose(Image.ROTATE_180)
-                elif orientation == 6: im = im.transpose(Image.ROTATE_270)
-                elif orientation == 8: im = im.transpose(Image.ROTATE_90)
-
-        im.convert('RGB').thumbnail((self.thumbsize, self.thumbsize), Image.ANTIALIAS)
+        im = im.convert('RGB')
+        im.thumbnail((self.thumbsize, self.thumbsize), Image.ANTIALIAS)
+        if orientation == 3:   im = im.transpose(Image.ROTATE_180)
+        elif orientation == 6: im = im.transpose(Image.ROTATE_270)
+        elif orientation == 8: im = im.transpose(Image.ROTATE_90)
         thumbfile = self._gen_temp_file_name(".JPG")
         im.save(thumbfile, "JPEG")
+        im.close()
         self._thumbs[imagePath] = thumbfile
         return thumbfile
 

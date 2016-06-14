@@ -14,6 +14,7 @@ from config import Config
 from solarstatus import SolarStatus
 from kivy.utils import strtotuple
 from ast import literal_eval as make_tuple
+import gc
 
 class Overview(Widget):
     current_time = StringProperty("Initialising")
@@ -105,6 +106,11 @@ class Picture(Scatter):
         if sel_photo_list:
             print("Selection: {}".format(sel_photo_list[0]))
             self.source = sel_photo_list[0]
+        self.imageBrowse = None
+        print(gc.get_count())
+        gc.collect()
+        print(gc.get_count())
+        print(gc.garbage)
         self.popup_open = False
 
 
