@@ -63,10 +63,6 @@ class MainCarousel(Carousel):
 
 class HomeApp(App):
     def build(self):
-        # Raspberry 7" resolution test
-        #Config.set('graphics', 'fullscreen', 'fake')
-        #Config.set('graphics', 'height', 480)
-        #Config.set('graphics', 'width', 800)
         app = MainCarousel()
         return app
 

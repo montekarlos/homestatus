@@ -16,6 +16,8 @@ class SolarStatus(Widget):
     daily_used = StringProperty("Initialising")
     daily_cost = StringProperty("Initialising")
 
+    hot_water_state = StringProperty("Initialising")
+
     _RED = [1, 0, 0, 1]
     _GREEN = [0, 1, 0, 1]
     _BLUE = [0, 0, 1, 1]
@@ -23,6 +25,7 @@ class SolarStatus(Widget):
     grid_power_colour = ListProperty([1, 1, 1, 1])
     consume_power_colour = ListProperty([1, 1, 1, 1])
     daily_cost_colour = ListProperty([1, 1, 1, 1])
+    hot_water_color = ListProperty(_RED)
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
@@ -79,16 +82,31 @@ class SolarStatus(Widget):
         endValue = dict[endKey]
         return int(endValue - startValue)
 
-    def _get_history_difference(self, date, channel):
+    def _get_json_from_history_url(self,  date, channel):
         url = 'http://' + self.config.inverter_ip + '/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=' + date + '&EndDate=' + date + '&Channel=' + channel
         try:
             with urllib.request.urlopen(url) as response:
                 data = response.read()
                 obj = json.loads(data.decode('utf-8'))
-                values = obj["Body"]["Data"]["meter:16030023"]["Data"][channel]["Values"]
-                return self._get_difference(values)
+                return obj
         except:
             print("Caught exception while processing: " + url)
+
+    def _get_history_difference(self, date, channel):
+        obj = self._get_json_from_history_url(date, channel)
+        values = obj["Body"]["Data"]["meter:16030023"]["Data"][channel]["Values"]
+        return self._get_difference(values)
+
+    def _get_latest_value(self, values):
+        s = sorted(values, key=int)
+        endKey = s[-1]
+        endValue = values[endKey]
+        return endValue
+
+    def _get_latest_value_from_url(self, date, channel):
+        obj = self._get_json_from_history_url(date, channel)
+        values = obj["Body"]["Data"]["datamanager:/dc/f002a69c/"]["Data"][channel]["Values"]
+        return self._get_latest_value(values)
 
     def calc_daily_cost(self, daily_imported, daily_exported):
         service_charge = -1.1638 - 0.06767
@@ -108,6 +126,13 @@ class SolarStatus(Widget):
         self.daily_imported = str(daily_imported) + " Wh"
         self.daily_exported = str(daily_exported) + " Wh"
         self.daily_used = str(self.daily_generated_value - daily_exported + daily_imported) + " Wh"
+        hot_water_state = self._get_latest_value_from_url(date, 'Digital_PowerManagementRelay_Out_1')
+        if (hot_water_state == 1):
+            self.hot_water_state = "On"
+            self.hot_water_color = self._GREEN
+        else:
+            self.hot_water_state = "Off"
+            self.hot_water_color = self._BLUE
         daily_cost_value = self.calc_daily_cost(daily_imported, daily_exported)
         if (daily_cost_value < 0):
             self.daily_cost_colour = self._RED
