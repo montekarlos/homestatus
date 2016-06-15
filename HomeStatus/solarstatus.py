@@ -108,7 +108,7 @@ class SolarStatus(Widget):
         data = obj["Body"]["Data"]
         latest_value = None
         if data:
-            values = ["datamanager:/dc/f002a69c/"]["Data"][channel]["Values"]
+            values = data["datamanager:/dc/f002a69c/"]["Data"][channel]["Values"]
             latest_value = self._get_latest_value(values)
         return latest_value
 
