@@ -94,8 +94,12 @@ class SolarStatus(Widget):
 
     def _get_history_difference(self, date, channel):
         obj = self._get_json_from_history_url(date, channel)
-        values = obj["Body"]["Data"]["meter:16030023"]["Data"][channel]["Values"]
-        return self._get_difference(values)
+        data = obj["Body"]["Data"]
+        if data:
+            values = data["meter:16030023"]["Data"][channel]["Values"]
+            return self._get_difference(values)
+        else:
+            return 0
 
     def _get_latest_value(self, values):
         s = sorted(values, key=int)
