@@ -117,14 +117,14 @@ class SolarStatus(Widget):
         return latest_value
 
     def calc_daily_cost(self, daily_imported, daily_exported):
-        service_charge = -1.1638 - 0.06767
-        import_per_kwh = -0.2223
+        service_charge = -0.8957 - 0.0625 - 0.0679 - 0.0215
+        import_per_kwh = -0.2461
         export_per_kwh = 0.06
         import_cost = (daily_imported/1000.0 * import_per_kwh)
         export_cost = (daily_exported/1000.0 * export_per_kwh)
         gst = 1.1
-        discount = (1 - .14)
-        daily_cost_value = ((service_charge + import_cost) * discount * gst) + export_cost
+        discount = (1 - .06)
+        daily_cost_value = (service_charge * discount * gst) + (import_cost * discount * gst) + export_cost
         return daily_cost_value
 
     def update_inverter_history(self, dt):
