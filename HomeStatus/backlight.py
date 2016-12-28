@@ -8,6 +8,7 @@ class RpBacklight:
     def __init__(self):
         with open(self.max_brightness_path, mode='r') as f:
             self.max_brightness = float(f.readline());
+            print("Using max brightness of: {}".format(self.max_brightness))
 
     def switch_on(self):
         print("Switching on backlight")
@@ -22,7 +23,10 @@ class RpBacklight:
     def set_brightness(self, value):
         print("Setting backlight to {}".format(value))
         with open(self.brightness_path, 'wt') as f:
-            f.write(str(int(float(value) / 100.0 * self.max_brightness))+ "\n")
+            raw_bl_value = str(int(float(value) / 100.0 * self.max_brightness))
+            print("Raw bl value: {}".format(raw_bl_value))
+            f.write(raw_bl_value)
+
 
 class FakeBacklight:
     def switch_on(self):
@@ -35,6 +39,8 @@ class FakeBacklight:
         print("Set brightness to {}%".format(value))
 
 class Backlight:
+    # Recent versions of raspberry pi firmware have rate limited
+    # changing the value of brightness and bl_power device nodes
     step_size = 1.5
     fade_interval = .04
 
