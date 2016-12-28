@@ -11,11 +11,11 @@ class RpBacklight:
 
     def switch_on(self):
         with open(self.power_path, 'wt') as f:
-            f.write("0\n") # 0 to swith on
+            f.write("1\n") # 1 to swith on
 
     def switch_off(self):
         with open(self.power_path, 'wt') as f:
-            f.write("1\n") # 1 to swith on
+            f.write("0\n") # 0 to swith on
 
     def set_brightness(self, value):
         print("Setting backlight to {}".format(value))
