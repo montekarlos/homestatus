@@ -10,12 +10,14 @@ class RpBacklight:
             self.max_brightness = float(f.readline());
 
     def switch_on(self):
-        with open(self.power_path, 'wt') as f:
-            f.write("1\n") # 1 to swith on
-
-    def switch_off(self):
+        print("Switching on backlight")
         with open(self.power_path, 'wt') as f:
             f.write("0\n") # 0 to swith on
+
+    def switch_off(self):
+        print("Switching off backlight")
+        with open(self.power_path, 'wt') as f:
+            f.write("1\n") # 1 to swith off
 
     def set_brightness(self, value):
         print("Setting backlight to {}".format(value))
