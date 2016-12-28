@@ -51,6 +51,12 @@ class Backlight:
         self.backlight_hw.set_brightness(self.brightness)
         self.backlight_hw.switch_on()
 
+    def switch_on(self):
+        self.backlight_hw.switch_on()
+
+    def switch_off(self):
+        self.backlight_hw.switch_off()
+
     def fade_in(self):
         Clock.unschedule(self.on_fade_in)
         Clock.unschedule(self.on_fade_out)

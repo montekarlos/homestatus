@@ -42,13 +42,13 @@ class MainCarousel(Carousel):
         self.idle_clock.cancel()
         if (self.is_idle):
             self.is_idle = False
-            self.backlight.fade_in()
+            self.backlight.switch_on()
         self.idle_clock = Clock.schedule_once(self.on_idle, float(self.config.switch_off_time))
 
     def on_idle(self, dt):
         # Switch off back light power
         print("On Idle")
-        self.backlight.fade_out()
+        self.backlight.switch_off()
         self.is_idle = True
 
     def on_index(self, *args):
