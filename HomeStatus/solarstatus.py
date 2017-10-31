@@ -1,9 +1,10 @@
 from kivy.uix.widget import Widget
 from kivy.properties import StringProperty, ListProperty
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 import urllib.request
 import json
 import time
+import threading
 
 class SolarStatus(Widget):
     power_consumed = StringProperty("Initialising")
@@ -27,52 +28,17 @@ class SolarStatus(Widget):
     daily_cost_colour = ListProperty([1, 1, 1, 1])
     hot_water_color = ListProperty(_RED)
 
+    stop_event = threading.Event();
+
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
         self.config = config
         self.daily_generated_value = 0
-        self.update_inverter(0)
-        self.update_inverter_history(0)
-        Clock.schedule_interval(self.update_inverter, 5.0)
-        Clock.schedule_interval(self.update_inverter_history, 400.0)
-
-    def update_inverter(self, dt):
-        url = 'http://' + self.config.inverter_ip + '/solar_api/v1/GetPowerFlowRealtimeData.fcgi'
-        try:
-            with urllib.request.urlopen(url) as response:
-                data = response.read()
-                obj = json.loads(data.decode('utf-8'))
-                site = obj["Body"]["Data"]["Site"]
-                
-                load = int(site["P_Load"] * -1)
-                self.power_consumed = str(load) + " W"
-                
-                pv = site["P_PV"]
-                if pv is None:
-                    pv = 0
-                else:
-                    pv = int(pv)
-                self.power_generated = str(pv) + " W"
-                
-                if (pv >= load):
-                    self.consume_power_colour = self._BLUE
-                else:
-                    self.consume_power_colour = self._RED
-
-                grid = int(site["P_Grid"])
-                if (grid > 0):
-                    self.grid_power_colour = self._RED
-                else:
-                    self.grid_power_colour = self._BLUE
-                    grid = grid * -1
-                self.power_imported = str(grid) + " W"
-
-                self.daily_generated_value = int(site["E_Day"])
-                if self.daily_generated_value  is None:
-                    self.daily_generated_value  = 0
-                self.daily_generated = str(self.daily_generated_value) + " Wh"
-        except:
-            print("Caught exception while processing: " + url)
+        #self.update_inverter(0)
+        #self.update_inverter_history(0)
+        threading.Thread(target=self.get_inverter_details_thread).start()
+        #Clock.schedule_interval(self.update_inverter, 5.0)
+        #Clock.schedule_interval(self.update_inverter_history, 400.0)
 
     def _get_difference(self, dict):
         s = sorted(dict, key=int)
@@ -127,7 +93,63 @@ class SolarStatus(Widget):
         daily_cost_value = (service_charge * discount * gst) + (import_cost * discount * gst) + export_cost
         return daily_cost_value
 
-    def update_inverter_history(self, dt):
+    # Help function to access properties on main thread
+    @mainthread
+    def _update_property(self, property, new_value):
+        self.property = new_value
+
+    # These functions run on a seperate thread
+
+    def get_inverter_details_thread(self):
+        last_history_update = time.time() - 400
+        while True:
+            if self.stop_event.is_set():
+                return
+            self.update_inverter()
+            if time.time() > last_history_update + 400:
+                self.update_inverter_history()
+                last_history_update = time.time()
+            self.stop_event.wait(5)
+
+    def update_inverter(self):
+        url = 'http://' + self.config.inverter_ip + '/solar_api/v1/GetPowerFlowRealtimeData.fcgi'
+        try:
+            with urllib.request.urlopen(url) as response:
+                data = response.read()
+                obj = json.loads(data.decode('utf-8'))
+                site = obj["Body"]["Data"]["Site"]
+                
+                load = int(site["P_Load"] * -1)
+                self.power_consumed = str(load) + " W"
+                
+                pv = site["P_PV"]
+                if pv is None:
+                    pv = 0
+                else:
+                    pv = int(pv)
+                self.power_generated = str(pv) + " W"
+                
+                if (pv >= load):
+                    self.consume_power_colour = self._BLUE
+                else:
+                    self.consume_power_colour = self._RED
+
+                grid = int(site["P_Grid"])
+                if (grid > 0):
+                    self.grid_power_colour = self._RED
+                else:
+                    self.grid_power_colour = self._BLUE
+                    grid = grid * -1
+                self.power_imported = str(grid) + " W"
+
+                self.daily_generated_value = int(site["E_Day"])
+                if self.daily_generated_value  is None:
+                    self.daily_generated_value  = 0
+                self.daily_generated = str(self.daily_generated_value) + " Wh"
+        except:
+            print("Caught exception while processing: " + url)
+
+    def update_inverter_history(self):
         date = time.strftime("%m/%d/%y")
         daily_imported = self._get_history_difference(date, 'EnergyReal_WAC_Plus_Absolute')
         daily_exported = self._get_history_difference(date, 'EnergyReal_WAC_Minus_Absolute')
